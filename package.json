@@ -1,0 +1,15 @@
+{
+  "name": "clothhub-ecommerce",
+  "version": "1.0.0",
+  "description": "Full-stack eCommerce clothing website",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../user-frontend && npm install && cd ../admin-frontend && npm install",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:user\" \"npm run start:admin\"",
+    "start:backend": "cd backend && npm run dev",
+    "start:user": "cd user-frontend && npm run dev",
+    "start:admin": "cd admin-frontend && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

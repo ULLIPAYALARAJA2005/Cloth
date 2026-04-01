@@ -1,0 +1,10 @@
+# Root .gitignore
+node_modules/
+.env
+*.log
+uploads/
+.DS_Store
+dist/
+build/
+.next/
+.vercel/
