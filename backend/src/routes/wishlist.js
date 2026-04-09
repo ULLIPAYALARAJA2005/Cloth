@@ -16,10 +16,16 @@ router.get('/', authMiddleware, async (req, res) => {
     const ids = user?.wishlist || [];
     if (ids.length === 0) return res.json([]);
     const products = await Product.find({ _id: { $in: ids } }).lean();
+    const formatImage = img => {
+      if (typeof img === 'string') return img.replace(/ /g, '%20');
+      if (img && typeof img === 'object' && img.url) return { ...img, url: img.url.replace(/ /g, '%20') };
+      return img;
+    };
+    
     const result = products.map(p => ({
       ...p,
       id: p._id.toString(),
-      images: (p.images || []).map(img => img.replace(/ /g, '%20')),
+      images: (p.images || []).map(formatImage),
     }));
     res.json(result);
   } catch (err) {
