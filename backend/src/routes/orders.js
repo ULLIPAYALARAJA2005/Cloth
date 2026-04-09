@@ -234,10 +234,27 @@ router.get('/:id/invoice', authMiddleware, async (req, res) => {
       return res.status(403).json({ message: 'Forbidden' });
     }
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=invoice-${order._id}.pdf`);
+    // Attach MRP from products to items
+    const populatedOrder = order.toObject();
+    for (const item of populatedOrder.items) {
+      item.mrp = item.price; // Default
+      if (item.productId) {
+        const prod = await Product.findById(item.productId);
+        if (prod) {
+          if (prod.hasSizes === false && prod.mrp) {
+            item.mrp = prod.mrp;
+          } else {
+            const sizeData = prod.sizes?.find(s => s.size === item.size);
+            if (sizeData && sizeData.mrp) item.mrp = sizeData.mrp;
+          }
+        }
+      }
+    }
 
-    generateInvoice(order, res);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${populatedOrder._id}.pdf`);
+
+    generateInvoice(populatedOrder, res);
   } catch (err) {
     console.error('Invoice generation error:', err);
     if (!res.headersSent) {
