@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getImgUrl } from '../utils/image';
 
 const useCartStore = create((set, get) => ({
   items: JSON.parse(localStorage.getItem('cart') || '[]'),
@@ -13,7 +14,8 @@ const useCartStore = create((set, get) => ({
     );
     let updated;
     const imgObj = product.images?.[0];
-    const imageUrl = (typeof imgObj === 'object' && imgObj !== null) ? imgObj.url : imgObj;
+    const rawUrl = (typeof imgObj === 'object' && imgObj !== null) ? imgObj.url : imgObj;
+    const imageUrl = getImgUrl(rawUrl);
     
     if (existingIndex >= 0) {
       updated = items.map((item, idx) =>

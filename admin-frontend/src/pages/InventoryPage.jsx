@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../lib/api';
 import { FiDatabase, FiAlertTriangle, FiCheckCircle, FiSearch } from 'react-icons/fi';
+import { getImgUrl } from '../utils/image';
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState([]);
@@ -73,7 +74,7 @@ export default function InventoryPage() {
           <tbody className="divide-y divide-gray-100 dark:divide-dark-border text-sm">
             {filtered.map(p => (
               <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors">
-                <td className="p-4"><img src={p.image || 'https://via.placeholder.com/48'} className="w-10 h-10 rounded-lg object-cover" /></td>
+                <td className="p-4"><img src={getImgUrl(p.image)} className="w-10 h-10 rounded-lg object-cover" /></td>
                 <td className="p-4">
                   <p className="font-bold text-gray-900 dark:text-white mb-0.5">{p.name}</p>
                   <span className="text-[10px] font-bold text-primary-500 uppercase">{p.category}</span>
@@ -104,7 +105,7 @@ export default function InventoryPage() {
         {filtered.map(p => (
           <div key={p.id} className="card p-4 space-y-4 border-l-4 border-l-primary-500">
             <div className="flex items-center gap-3">
-              <img src={p.image || 'https://via.placeholder.com/64'} className="w-12 h-12 rounded-lg object-cover" />
+              <img src={getImgUrl(p.image)} className="w-12 h-12 rounded-lg object-cover" />
               <div className="min-w-0 flex-1">
                 <h3 className="font-bold text-gray-900 dark:text-white text-sm truncate">{p.name}</h3>
                 <p className="text-[10px] text-primary-600 font-bold uppercase tracking-wider">{p.category}</p>
