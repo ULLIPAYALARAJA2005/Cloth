@@ -4,13 +4,11 @@ import { FiStar, FiHeart, FiTrash2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../lib/api';
 import useAuthStore from '../store/authStore';
-import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
 import { getImgUrl } from '../utils/image';
 
 export default function WishlistPage() {
   const { user } = useAuthStore();
-  const addItem = useCartStore(s => s.addItem);
   const toggleWishlist = useWishlistStore(s => s.toggleWishlist);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,13 +31,6 @@ export default function WishlistPage() {
     } else {
       toast.error('Failed to remove');
     }
-  };
-
-  const addToCart = (product) => {
-    const defSize = product.sizes?.find(s => s.qty > 0);
-    if (!defSize) { toast.error('Out of stock'); return; }
-    addItem(product, defSize.size, product.colors?.[0], 1);
-    toast.success('Added to cart!');
   };
 
   if (!user) return (
@@ -89,11 +80,7 @@ export default function WishlistPage() {
                 <div className="p-3">
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1 line-clamp-1">{p.category}</p>
                   <h3 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 mb-2">{p.name}</h3>
-                  <p className="font-black text-primary-600 dark:text-primary-400 mb-3 text-sm">₹{minPrice.toLocaleString()}</p>
-                  <button onClick={() => addToCart(p)} disabled={oos}
-                    className="w-full btn-primary text-[10px] font-bold py-2 justify-center shadow-md shadow-primary-500/10">
-                    {oos ? 'OUT OF STOCK' : 'ADD TO CART'}
-                  </button>
+                  <p className="font-black text-primary-600 dark:text-primary-400 text-sm">₹{minPrice.toLocaleString()}</p>
                 </div>
               </div>
             );

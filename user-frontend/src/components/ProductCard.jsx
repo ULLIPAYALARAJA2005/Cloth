@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { FiHeart, FiShoppingCart, FiStar } from 'react-icons/fi';
+import { FiHeart, FiStar } from 'react-icons/fi';
 import { FaHeart } from 'react-icons/fa';
 import useCartStore from '../store/cartStore';
 import useAuthStore from '../store/authStore';
@@ -80,21 +80,7 @@ export default function ProductCard({ product, compact = false }) {
           {isWishlisted ? <FaHeart className="w-4 h-4 text-primary-500" /> : <FiHeart className="w-4 h-4 text-gray-500" />}
         </button>
 
-        {/* Hover actions — ONLY Add to Cart if not in stock and NOT already in cart */}
-        <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-10">
-          {!isOutOfStock ? (
-            !isInCart ? (
-              <button onClick={handleAddToCart}
-                className="w-full bg-gray-900/90 hover:bg-gray-900 text-white py-3 flex items-center justify-center gap-2 text-xs font-bold transition-colors">
-                <FiShoppingCart className="w-4 h-4" /> ADD TO CART
-              </button>
-            ) : null
-          ) : (
-            <div className="bg-gray-500/90 text-white py-3 text-center text-xs font-bold uppercase tracking-widest">
-              Out of Stock
-            </div>
-          )}
-        </div>
+        {/* No hover add-to-cart — user adds from product detail page */}
       </div>
 
       {/* Info */}
