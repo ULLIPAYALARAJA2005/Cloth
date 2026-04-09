@@ -52,9 +52,12 @@ function generateInvoice(order, res) {
 
   // BILL TO
   doc.font(fontBold).text('BILL TO:', 40, doc.y, { align: 'left' }).moveDown(0.5);
+  
+  const customerPhones = [order.address?.mobile1, order.address?.mobile2].filter(Boolean).join(', ');
+  
   doc.font(fontNormal)
     .text(`Customer Name: ${order.userName || 'N/A'}`, 40, doc.y, { align: 'left' })
-    .text(`Phone: ${order.address?.phone || order.phone || 'N/A'}`, 40, doc.y, { align: 'left' })
+    .text(`Phone: ${customerPhones || order.phone || 'N/A'}`, 40, doc.y, { align: 'left' })
     .text('Address:', 40, doc.y, { align: 'left' });
   
   if (order.address) {
@@ -182,7 +185,7 @@ function generateInvoice(order, res) {
 
   // FOOTER
   doc.text('Thank you for shopping with us!', 40, doc.y, { align: 'center', width: 515 });
-  doc.text('Visit again 😊', 40, doc.y, { align: 'center', width: 515 });
+  doc.text('We hope to see you again soon.', 40, doc.y, { align: 'center', width: 515 });
 
   doc.end();
 }
