@@ -6,6 +6,7 @@ import api from '../lib/api';
 import useAuthStore from '../store/authStore';
 import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
+import { getImgUrl } from '../utils/image';
 
 export default function WishlistPage() {
   const { user } = useAuthStore();
@@ -74,7 +75,7 @@ export default function WishlistPage() {
               <div key={p.id} className="card group overflow-hidden animate-fade-in border-gray-100 dark:border-dark-border">
                 <div className="relative aspect-[3/4] overflow-hidden">
                   <Link to={`/product/${p.id}`}>
-                    <img src={p.images?.[0] || 'https://via.placeholder.com/300x400'} alt={p.name}
+                    <img src={getImgUrl(p.images?.[0])} alt={p.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </Link>
                   {oos && <div className="absolute inset-0 bg-black/30 flex items-center justify-center">

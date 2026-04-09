@@ -27,10 +27,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static files for local development only (Firebase used in prod)
-if (process.env.NODE_ENV !== 'production') {
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-}
+// Static files serving (Firebase used in prod, local as fallback)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', require('./src/routes/auth'));

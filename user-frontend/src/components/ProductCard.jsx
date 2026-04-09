@@ -6,6 +6,8 @@ import useCartStore from '../store/cartStore';
 import useAuthStore from '../store/authStore';
 import useWishlistStore from '../store/wishlistStore';
 import toast from 'react-hot-toast';
+import { API_URL } from '../lib/api';
+import { getImgUrl } from '../utils/image';
 
 export default function ProductCard({ product, compact = false }) {
   const { user } = useAuthStore();
@@ -45,9 +47,9 @@ export default function ProductCard({ product, compact = false }) {
     }
   };
 
-  const getImgUrl = (idx) => {
+  const getImgUrlHelper = (idx) => {
     const img = product.images?.[idx] || product.images?.[0];
-    return (typeof img === 'object' && img !== null ? img.url : img) || 'https://via.placeholder.com/400';
+    return getImgUrl(img);
   };
 
   return (
@@ -59,7 +61,7 @@ export default function ProductCard({ product, compact = false }) {
       {/* Image */}
       <div className={`relative overflow-hidden rounded-t-2xl bg-gray-100 dark:bg-dark-border ${compact ? 'aspect-[3/4]' : 'aspect-[3/4]'}`}>
         <img
-          src={getImgUrl(imageIdx)}
+          src={getImgUrlHelper(imageIdx)}
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />

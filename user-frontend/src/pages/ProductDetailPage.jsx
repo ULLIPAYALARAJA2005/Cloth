@@ -3,10 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiHeart, FiShoppingCart, FiStar, FiChevronLeft, FiChevronRight, FiTruck, FiZap } from 'react-icons/fi';
 import { FaHeart, FaStar, FaRegStar } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import api from '../lib/api';
+import api, { API_URL } from '../lib/api';
 import useCartStore from '../store/cartStore';
 import useAuthStore from '../store/authStore';
 import useWishlistStore from '../store/wishlistStore';
+import { getImgUrl } from '../utils/image';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -138,9 +139,9 @@ export default function ProductDetailPage() {
   }));
 
   // 4. Filter gallery precisely to the selected color, or fallback to 'All'
-  const filteredImages = colorToImages[selectedColor]?.length > 0 
+  const filteredImages = (colorToImages[selectedColor]?.length > 0 
     ? colorToImages[selectedColor] 
-    : (colorToImages['All'] || []);
+    : (colorToImages['All'] || [])).map(url => getImgUrl(url));
 
   const handleImageClick = (idx) => {
     setImgIdx(idx);

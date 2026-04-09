@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiTrash2, FiMinus, FiPlus, FiArrowRight } from 'react-icons/fi';
 import useCartStore from '../store/cartStore';
+import { getImgUrl } from '../utils/image';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart } = useCartStore();
@@ -31,7 +32,7 @@ export default function CartPage() {
         <div className="lg:col-span-2 space-y-4">
           {items.map((item, idx) => (
             <div key={idx} className="card p-4 flex gap-4 items-start">
-              <img src={item.image || 'https://via.placeholder.com/100'} alt={item.name}
+              <img src={getImgUrl(item.image)} alt={item.name}
                 className="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1 truncate">{item.name}</h3>

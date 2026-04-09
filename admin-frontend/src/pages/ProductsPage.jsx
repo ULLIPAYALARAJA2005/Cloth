@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiPlus, FiEdit2, FiTrash2, FiImage, FiX, FiSearch } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../lib/api';
+import { getImgUrl } from '../utils/image';
 
 const CATEGORIES = ['Men', 'Women', 'Kids', 'Sports', 'Ethnic', 'Accessories'];
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -227,7 +228,7 @@ export default function ProductsPage() {
                 return (
                   <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors">
                     <td className="p-4 h-full">
-                      <img src={p.images?.[0]?.url || p.images?.[0] || 'https://via.placeholder.com/48'} className="w-10 h-10 rounded-lg object-cover mx-auto" />
+                      <img src={getImgUrl(p.images?.[0])} className="w-10 h-10 rounded-lg object-cover mx-auto" />
                     </td>
                     <td className="p-4">
                       <p className="font-bold text-gray-900 dark:text-white line-clamp-1 text-sm">{p.name}</p>
@@ -258,7 +259,7 @@ export default function ProductsPage() {
           const totalQty = p.hasSizes === false ? (p.quantity || 0) : (p.sizes?.reduce((s, x) => s + x.qty, 0) || 0);
           return (
             <div key={p.id} className="card p-4 flex gap-4 items-center">
-              <img src={p.images?.[0]?.url || p.images?.[0] || 'https://via.placeholder.com/64'} className="w-16 h-16 rounded-xl object-cover border border-gray-100 dark:border-dark-border" />
+              <img src={getImgUrl(p.images?.[0])} className="w-16 h-16 rounded-xl object-cover border border-gray-100 dark:border-dark-border" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between">
                   <span className="text-[9px] font-bold text-primary-500 uppercase">{p.category}</span>
@@ -435,7 +436,7 @@ export default function ProductsPage() {
                         const initialColor = typeof img === 'object' ? (img.color || 'All') : 'All';
                         return (
                           <div key={i} className="group relative aspect-square rounded-xl overflow-hidden bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border">
-                            <img src={url} className="w-full h-full object-cover" />
+                            <img src={getImgUrl(img)} className="w-full h-full object-cover" />
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2 z-10">
                               <button type="button" onClick={() => removeExistingImage(i)} className="w-full py-1.5 bg-red-500 text-white text-[10px] font-black rounded-lg hover:bg-red-600 transition-all uppercase tracking-widest shadow-lg">DELETE IMAGE</button>
                             </div>

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import api from '../lib/api';
 import useAuthStore from '../store/authStore';
 import useCartStore from '../store/cartStore';
+import { getImgUrl } from '../utils/image';
 
 const STATUS_STEPS = ['pending', 'confirmed', 'shipped', 'delivered'];
 const STATUS_ICONS = { pending: FiClock, confirmed: FiCheck, shipped: FiTruck, delivered: FiPackage };
@@ -200,7 +201,7 @@ export default function OrdersPage() {
                     return (
                       <div key={i} className="flex flex-col gap-3 bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border rounded-2xl p-4 hover:border-primary-200 transition-colors">
                         <div className="flex items-center gap-3">
-                          <img src={item.image || 'https://via.placeholder.com/64'} alt={item.name} className="w-16 h-16 rounded-xl object-cover shadow-sm bg-white dark:bg-dark-card" />
+                          <img src={getImgUrl(item.image)} alt={item.name} className="w-16 h-16 rounded-xl object-cover shadow-sm bg-white dark:bg-dark-card" />
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{item.name}</p>
                             <div className="flex items-center gap-2 mt-1">
