@@ -51,8 +51,8 @@ export default function Sidebar({ isOpen, onClose }) {
   }, [pathname]); 
 
   return (
-    <aside className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-dark-card border-r border-gray-300 dark:border-dark-border z-[60] transform transition-transform duration-300 ease-in-out flex flex-col md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-      <div className="h-16 flex items-center justify-between px-6 border-b border-gray-300 dark:border-dark-border">
+    <aside className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-dark-card border-r border-gray-400 dark:border-dark-border z-[60] transform transition-transform duration-300 ease-in-out flex flex-col md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className="h-16 flex items-center justify-between px-6 border-b border-gray-400 dark:border-dark-border">
         <div className="flex items-center">
           <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain mr-3" />
           <span className="text-xl font-extrabold text-gray-900 dark:text-white">
@@ -86,8 +86,8 @@ export default function Sidebar({ isOpen, onClose }) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-300 dark:border-dark-border">
-        <button onClick={toggle} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors">
+      <div className="p-4 border-t border-gray-400 dark:border-dark-border">
+        <button onClick={toggle} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-border transition-colors border border-gray-300 dark:border-transparent">
           {dark ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
           {dark ? 'Light Mode' : 'Dark Mode'}
         </button>
