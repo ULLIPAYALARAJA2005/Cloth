@@ -5,6 +5,7 @@ import useAuthStore from '../store/authStore';
 import useCartStore from '../store/cartStore';
 import useThemeStore from '../store/themeStore';
 import api from '../lib/api';
+import { getImgUrl } from '../utils/image';
 
 const categories = ['All', 'Men', 'Women', 'Kids', 'Sports', 'Ethnic', 'Accessories'];
 
@@ -126,7 +127,7 @@ export default function Navbar() {
                   <button key={p.id}
                     onClick={() => { navigate(`/product/${p.id}`); setSuggestions([]); }}
                     className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-dark-border transition-colors text-left">
-                    <img src={p.images?.[0]} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                    <img src={getImgUrl(p.images?.[0])} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{p.name}</p>
                       <p className="text-xs text-gray-500">₹{Math.min(...(p.sizes?.map(s => s.price) || [0]))} · {p.category}</p>
@@ -222,7 +223,7 @@ export default function Navbar() {
                 <button key={p.id}
                   onClick={() => { navigate(`/product/${p.id}`); setSuggestions([]); }}
                   className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-dark-border transition-colors text-left">
-                  <img src={p.images?.[0]} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                  <img src={getImgUrl(p.images?.[0])} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{p.name}</p>
                   </div>
