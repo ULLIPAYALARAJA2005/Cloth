@@ -7,6 +7,7 @@ const Coupon = require('../models/Coupon');
 const authMiddleware = require('../middleware/auth');
 const { upload, uploadToFirebase } = require('../middleware/upload');
 const { sendEmail } = require('../utils/email');
+const { generateInvoice } = require('../utils/pdfGenerator');
 
 const formatOrder = (o) => {
   const obj = o.toObject ? o.toObject() : o;
@@ -221,6 +222,27 @@ router.get('/:id', authMiddleware, async (req, res) => {
     res.json(formatOrder(order));
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// GET /api/orders/:id/invoice — download invoice PDF
+router.get('/:id/invoice', authMiddleware, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    if (order.userId !== req.user.uid && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${order._id}.pdf`);
+
+    generateInvoice(order, res);
+  } catch (err) {
+    console.error('Invoice generation error:', err);
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Server error' });
+    }
   }
 });
 

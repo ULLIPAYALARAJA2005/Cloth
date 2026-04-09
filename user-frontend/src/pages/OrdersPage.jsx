@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiPackage, FiTruck, FiCheck, FiX, FiClock, FiStar, FiShoppingBag, FiEdit2, FiTrash, FiTrash2 } from 'react-icons/fi';
+import { FiPackage, FiTruck, FiCheck, FiX, FiClock, FiStar, FiShoppingBag, FiEdit2, FiTrash, FiTrash2, FiDownload } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../lib/api';
 import useAuthStore from '../store/authStore';
@@ -70,6 +70,21 @@ export default function OrdersPage() {
       toast.success('Order removed');
     } catch { toast.error('Failed to remove order'); }
     finally { setDeletingId(null); }
+  };
+
+  const downloadInvoice = async (orderId) => {
+    try {
+      const res = await api.get(`/orders/${orderId}/invoice`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch {
+      toast.error('Failed to download invoice');
+    }
   };
 
   const submitReview = async () => {
@@ -269,6 +284,13 @@ export default function OrdersPage() {
                       <button onClick={() => deleteOrder(order.id)} disabled={deletingId === order.id}
                         className="flex items-center gap-2 text-xs font-bold text-gray-500 bg-gray-50 dark:bg-dark-border px-5 py-2.5 rounded-xl hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200">
                         <FiTrash className="w-4 h-4" /> Remove
+                      </button>
+                    )}
+
+                    {['confirmed', 'shipped', 'delivered'].includes(order.status) && (
+                      <button onClick={() => downloadInvoice(order.id)}
+                        className="flex items-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-5 py-2.5 rounded-xl hover:bg-blue-100 transition-all border border-transparent hover:border-blue-200">
+                        <FiDownload className="w-4 h-4" /> Invoice
                       </button>
                     )}
 
