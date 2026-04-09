@@ -159,7 +159,7 @@ export default function Navbar() {
             </Link>
 
             {user ? (
-              <div className="relative hidden md:block">
+              <div className="relative">
                 <button onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-card transition-colors">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow">
@@ -191,12 +191,8 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <Link to="/login" className="btn-primary text-sm py-2 px-4 hidden md:block">Login</Link>
+              <Link to="/login" className="btn-primary text-sm py-2 px-4">Login</Link>
             )}
-
-            <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-card lg:hidden">
-              {menuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
-            </button>
           </div>
         </div>
 
@@ -237,59 +233,14 @@ export default function Navbar() {
         </div>
 
         {/* Category bar */}
-        <div className="hidden lg:flex items-center gap-1 pb-2 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-2 pb-2 overflow-x-auto scrollbar-hide snap-x">
           {categories.map(cat => (
             <Link key={cat} to={cat === 'All' ? '/' : `/?category=${cat}`}
-              className="px-4 py-1.5 text-sm font-medium rounded-lg whitespace-nowrap text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all">
+              className="px-4 py-1.5 text-sm font-medium rounded-lg whitespace-nowrap text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all snap-start">
               {cat}
             </Link>
           ))}
         </div>
-
-        {/* Mobile menu */}
-        {menuOpen && (
-          <div className="lg:hidden pb-4 pt-2 space-y-1 animate-slide-down">
-            {categories.map(cat => (
-              <Link key={cat} to={cat === 'All' ? '/' : `/?category=${cat}`}
-                onClick={() => setMenuOpen(false)}
-                className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-card font-medium">
-                {cat}
-              </Link>
-            ))}
-            
-            {/* User Options in Mobile Menu */}
-            <div className="pt-2">
-              {user ? (
-                <>
-                  <div className="px-4 py-3 bg-gray-50 dark:bg-dark-border/50">
-                    <p className="font-semibold text-gray-900 dark:text-white text-sm">{user.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                  </div>
-                  {[
-                    { to: '/dashboard', label: '👤 Dashboard' },
-                    { to: '/orders', label: '📦 My Orders' },
-                    { to: '/wishlist', label: '❤️ Wishlist' },
-                  ].map(item => (
-                    <Link key={item.to} to={item.to} onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-card transition-colors">
-                      {item.label}
-                    </Link>
-                  ))}
-                  <button onClick={() => { logout(); setMenuOpen(false); navigate('/'); }}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
-                    <FiLogOut className="w-4 h-4" /> Sign Out
-                  </button>
-                </>
-              ) : (
-                <div className="px-4 py-3">
-                  <Link to="/login" onClick={() => setMenuOpen(false)} className="btn-primary block text-center py-2 text-sm">
-                    Login
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );
