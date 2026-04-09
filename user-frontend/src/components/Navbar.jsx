@@ -99,8 +99,8 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Search Bar */}
-          <div ref={searchRef} className="flex-1 max-w-xl mx-4 relative">
+          {/* Desktop Search Bar */}
+          <div ref={searchRef} className="hidden md:block flex-1 max-w-xl mx-4 relative">
             <form onSubmit={doSearch}>
               <div className="relative">
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -138,7 +138,7 @@ export default function Navbar() {
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 ml-auto md:ml-0">
             <button onClick={toggle} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-card transition-colors" aria-label="Toggle dark mode">
               {dark ? <FiSun className="w-5 h-5 text-yellow-400" /> : <FiMoon className="w-5 h-5 text-gray-600" />}
             </button>
@@ -198,6 +198,42 @@ export default function Navbar() {
               {menuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
             </button>
           </div>
+        </div>
+
+        {/* Mobile Search Bar */}
+        <div className="md:hidden pb-3">
+          <form onSubmit={doSearch}>
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => handleSearch(e.target.value)}
+                placeholder="Search products..."
+                className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-gray-100 dark:bg-dark-card border border-transparent focus:border-primary-500 focus:bg-white dark:focus:bg-dark-card focus:outline-none text-sm transition-all"
+              />
+              {searchQuery && (
+                <button type="button" onClick={clearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                  <FiX className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </form>
+          {suggestions.length > 0 && (
+            <div className="absolute left-4 right-4 mt-1 bg-white dark:bg-dark-card rounded-xl shadow-xl border border-gray-100 dark:border-dark-border overflow-hidden z-50 animate-slide-down">
+              {suggestions.map(p => (
+                <button key={p.id}
+                  onClick={() => { navigate(`/product/${p.id}`); setSuggestions([]); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-dark-border transition-colors text-left">
+                  <img src={p.images?.[0]} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{p.name}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Category bar */}
