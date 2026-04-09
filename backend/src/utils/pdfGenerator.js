@@ -154,10 +154,11 @@ function generateInvoice(order, res) {
   const totalDiscount = totalMRP - finalAmount;
 
   doc.text(`Total MRP: Rs. ${totalMRP}`, 40, doc.y, { align: 'left', width: 500 });
-  doc.text(`Total Discount: -Rs. ${totalDiscount > 0 ? totalDiscount : 0}`, 40, doc.y, { align: 'left', width: 500 });
+  doc.text(`Total Discount: Rs. -${totalDiscount > 0 ? totalDiscount : 0}`, 40, doc.y, { align: 'left', width: 500 });
 
   if (order.couponCode) {
-    doc.text(`Coupon Applied: ${order.couponCode}`, 40, doc.y, { align: 'left', width: 500 });
+    const couponDiscount = totalSalePriceItems - finalAmount;
+    doc.text(`Coupon Applied: ${order.couponCode} (Discount: Rs. ${couponDiscount > 0 ? couponDiscount : 0})`, 40, doc.y, { align: 'left', width: 500 });
   }
 
   doc.font(fontBold).text(`Final Amount: Rs. ${finalAmount}`, 40, doc.y, { align: 'left', width: 500 });
