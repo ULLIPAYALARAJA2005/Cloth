@@ -8,6 +8,7 @@ const authMiddleware = require('../middleware/auth');
 const { upload, uploadToFirebase } = require('../middleware/upload');
 const { sendEmail } = require('../utils/email');
 const { generateInvoice } = require('../utils/pdfGenerator');
+const { generateDeliveryLabel } = require('../utils/labelGenerator');
 
 const formatOrder = (o) => {
   const obj = o.toObject ? o.toObject() : o;
@@ -297,6 +298,25 @@ router.put('/:id/user-delete', authMiddleware, async (req, res) => {
     res.json({ message: 'Order removed from history' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Admin Download Delivery Label
+router.get('/:id/label', authMiddleware, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden: Admins only' });
+    }
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=label-${order._id}.pdf`);
+
+    generateDeliveryLabel(order.toObject(), res);
+  } catch (err) {
+    console.error('Label generation error:', err);
+    if (!res.headersSent) res.status(500).json({ message: 'Error generating label' });
   }
 });
 

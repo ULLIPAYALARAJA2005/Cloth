@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiEye, FiCheck, FiX, FiTruck, FiPackage, FiShoppingBag, FiTrash, FiArrowLeft } from 'react-icons/fi';
+import { FiEye, FiCheck, FiX, FiTruck, FiPackage, FiShoppingBag, FiTrash, FiArrowLeft, FiDownload } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../lib/api';
 
@@ -61,6 +61,21 @@ export default function OrdersPage() {
       toast.error(err.response?.data?.message || 'Failed to delete order');
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const downloadLabel = async (id) => {
+    try {
+      const res = await api.get(`/orders/${id}/label`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `label-${id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch {
+      toast.error('Failed to download label');
     }
   };
 
@@ -141,6 +156,12 @@ export default function OrdersPage() {
                 )}
                 {selected.status === 'shipped' && (
                   <button onClick={() => updateStatus(selected.id, 'delivered')} className="btn-primary py-1.5 px-3 text-xs whitespace-nowrap bg-green-600 hover:bg-green-700"><FiPackage /> Mark Delivered</button>
+                )}
+                {['confirmed','shipped','delivered'].includes(selected.status) && (
+                  <button onClick={() => downloadLabel(selected.id)}
+                    className="flex items-center gap-1.5 py-1.5 px-3 text-xs font-bold whitespace-nowrap rounded-lg text-blue-700 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 hover:bg-blue-100 transition-all">
+                    <FiDownload className="w-3.5 h-3.5" /> Download Label
+                  </button>
                 )}
               </div>
             </div>
