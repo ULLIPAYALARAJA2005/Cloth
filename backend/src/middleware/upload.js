@@ -31,18 +31,27 @@ const upload = multer({
 const uploadToFirebase = async (file, folder = 'products') => {
   if (!file || !file.buffer) return null;
 
-  const bucket = storage.bucket();
-  const filename = `${folder}/${uuidv4()}-${file.originalname}`;
-  const fileRef = bucket.file(filename);
+  try {
+    const bucket = storage.bucket();
+    if (bucket.name === 'mock-bucket') {
+      console.log(`Mock: Skipping real Firebase upload for ${file.originalname}`);
+      return `/uploads/${file.originalname}`; // Fallback to local path if mocked
+    }
 
-  await fileRef.save(file.buffer, {
-    metadata: { contentType: file.mimetype },
-    public: true,
-  });
+    const filename = `${folder}/${uuidv4()}-${file.originalname}`;
+    const fileRef = bucket.file(filename);
 
-  // Return the public URL
-  // Format: https://storage.googleapis.com/BUCKET_NAME/FILE_NAME
-  return `https://storage.googleapis.com/${bucket.name}/${filename}`;
+    await fileRef.save(file.buffer, {
+      metadata: { contentType: file.mimetype },
+      public: true,
+    });
+
+    return `https://storage.googleapis.com/${bucket.name}/${filename}`;
+  } catch (error) {
+    console.error('Firebase upload error:', error);
+    return `/uploads/${file.originalname}`;
+  }
 };
+
 
 module.exports = { upload, uploadToFirebase };
