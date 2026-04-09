@@ -1,9 +1,9 @@
 const multer = require('multer');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-const { storage } = require('../config/firebase');
+const { getBucket } = require('../config/gridfs');
+const { Readable } = require('stream');
 
-// Use memory storage for cloud uploads
+// Use memory storage - we'll pipe the buffer to GridFS
 const storageConfig = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
@@ -24,34 +24,46 @@ const upload = multer({
 });
 
 /**
- * Uploads a file buffer to Firebase Storage and returns the public URL
+ * Uploads a file buffer to MongoDB GridFS and returns the public URL
  * @param {Object} file - The file object from multer (with buffer)
- * @param {String} folder - Target folder in bucket
+ * @param {String} folder - Logical folder prefix (not used in GridFS, kept for API compat)
+ * @returns {String} URL path like /api/images/:id
  */
-const uploadToFirebase = async (file, folder = 'products') => {
-  if (!file || !file.buffer) return null;
+const uploadToGridFS = (file, folder = 'products') => {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.buffer) return resolve(null);
 
-  try {
-    const bucket = storage.bucket();
-    if (bucket.name === 'mock-bucket') {
-      console.log(`Mock: Skipping real Firebase upload for ${file.originalname}`);
-      return `/uploads/${file.originalname}`; // Fallback to local path if mocked
+    try {
+      const bucket = getBucket();
+      const filename = `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
+
+      const uploadStream = bucket.openUploadStream(filename, {
+        metadata: {
+          originalName: file.originalname,
+          mimetype: file.mimetype,
+          folder,
+        },
+        contentType: file.mimetype,
+      });
+
+      const readable = Readable.from(file.buffer);
+      readable.pipe(uploadStream);
+
+      uploadStream.on('finish', () => {
+        // Return an API path that the backend will serve
+        resolve(`/api/images/${uploadStream.id}`);
+      });
+
+      uploadStream.on('error', (err) => {
+        console.error('GridFS upload error:', err);
+        reject(err);
+      });
+    } catch (err) {
+      console.error('GridFS bucket error:', err);
+      reject(err);
     }
-
-    const filename = `${folder}/${uuidv4()}-${file.originalname}`;
-    const fileRef = bucket.file(filename);
-
-    await fileRef.save(file.buffer, {
-      metadata: { contentType: file.mimetype },
-      public: true,
-    });
-
-    return `https://storage.googleapis.com/${bucket.name}/${filename}`;
-  } catch (error) {
-    console.error('Firebase upload error:', error);
-    return `/uploads/${file.originalname}`;
-  }
+  });
 };
 
-
-module.exports = { upload, uploadToFirebase };
+// Keep the same export name so existing routes don't need changes
+module.exports = { upload, uploadToFirebase: uploadToGridFS };

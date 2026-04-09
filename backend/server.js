@@ -2,20 +2,35 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const path = require('path');
+const mongoose = require('mongoose');
 const connectDB = require('./src/config/db');
+const { initGridFS } = require('./src/config/gridfs');
 require('dotenv').config();
 
 const app = express();
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB, then initialize GridFS
+connectDB().then(() => {
+  // Wait for mongoose to be fully connected before initializing GridFS
+  if (mongoose.connection.readyState === 1) {
+    initGridFS();
+  } else {
+    mongoose.connection.once('open', () => {
+      initGridFS();
+    });
+  }
+}).catch(() => {
+  // connectDB swallows errors, so also hook on the connection event
+  mongoose.connection.once('open', () => {
+    initGridFS();
+  });
+});
 
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(morgan('dev'));
 
-// USER SPECIFIED CORS CONFIG
+// CORS CONFIG
 app.use(cors({
   origin: [
     process.env.USER_FRONTEND_URL,
@@ -27,9 +42,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static files serving (Firebase used in prod, local as fallback)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 // Routes
 app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/products', require('./src/routes/products'));
@@ -39,6 +51,7 @@ app.use('/api/reviews', require('./src/routes/reviews'));
 app.use('/api/coupons', require('./src/routes/coupons'));
 app.use('/api/admin', require('./src/routes/admin'));
 app.use('/api/settings', require('./src/routes/settings'));
+app.use('/api/images', require('./src/routes/images'));
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'OK', db: 'MongoDB Atlas', timestamp: new Date().toISOString() }));
