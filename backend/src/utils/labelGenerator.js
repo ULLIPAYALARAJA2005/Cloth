@@ -73,7 +73,7 @@ function generateDeliveryLabel(order, res) {
     
   if (order.address) {
     if (order.address.street) doc.text(order.address.street, 300, doc.y);
-    const cityStatePin = [order.address.city, order.address.state, order.address.pinCode].filter(Boolean).join(', ');
+    const cityStatePin = [order.address.city, order.address.state, order.address.pincode].filter(Boolean).join(', ');
     if (cityStatePin) doc.text(cityStatePin, 300, doc.y);
   } else {
     doc.text('N/A', 300, doc.y);

@@ -302,11 +302,8 @@ router.put('/:id/user-delete', authMiddleware, async (req, res) => {
 });
 
 // Admin Download Delivery Label
-router.get('/:id/label', authMiddleware, async (req, res) => {
+router.get('/:id/label', async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Forbidden: Admins only' });
-    }
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
