@@ -69,8 +69,11 @@ export default function WishlistPage() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {products.map(p => {
-            const minPrice = Math.min(...(p.sizes?.map(s => s.price) || [0]));
-            const oos = p.sizes?.every(s => s.qty === 0);
+            const minPrice = p.hasSizes === false ? (p.price || 0) : (p.sizes?.length > 0 ? Math.min(...p.sizes.map(s => s.price)) : 0);
+            const minMrp = p.hasSizes === false ? (p.mrp || 0) : (p.sizes?.length > 0 ? Math.min(...p.sizes.map(s => s.mrp)) : 0);
+            const discount = (minMrp > 0 && minPrice < minMrp) ? Math.round(((minMrp - minPrice) / minMrp) * 100) : 0;
+            const oos = p.hasSizes === false ? ((p.quantity || 0) === 0) : (p.sizes?.every(s => s.qty === 0));
+            
             return (
               <div key={p.id} className="card group overflow-hidden animate-fade-in border-gray-100 dark:border-dark-border">
                 <div className="relative aspect-[3/4] overflow-hidden">
@@ -89,7 +92,17 @@ export default function WishlistPage() {
                 <div className="p-3">
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1 line-clamp-1">{p.category}</p>
                   <h3 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 mb-2">{p.name}</h3>
-                  <p className="font-black text-primary-600 dark:text-primary-400 mb-3 text-sm">₹{minPrice.toLocaleString()}</p>
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-black text-primary-600 dark:text-primary-400 text-sm">₹{minPrice.toLocaleString()}</span>
+                      {discount > 0 && (
+                        <span className="text-[10px] line-through text-gray-400">₹{minMrp.toLocaleString()}</span>
+                      )}
+                    </div>
+                    {discount > 0 && (
+                      <span className="text-[10px] font-black text-green-600 dark:text-green-400 uppercase">{discount}% OFF</span>
+                    )}
+                  </div>
                 </div>
               </div>
             );
