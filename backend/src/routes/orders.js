@@ -302,18 +302,18 @@ router.put('/:id/user-delete', authMiddleware, async (req, res) => {
 });
 
 // Admin Download Delivery Label
-router.get('/:id/label', async (req, res) => {
+router.get('/:id/label', authMiddleware, async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).lean();
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=label-${order._id}.pdf`);
 
-    generateDeliveryLabel(order.toObject(), res);
+    generateDeliveryLabel(order, res);
   } catch (err) {
     console.error('Label generation error:', err);
-    if (!res.headersSent) res.status(500).json({ message: 'Error generating label' });
+    if (!res.headersSent) res.status(500).json({ message: 'Error generating label', error: err.message });
   }
 });
 

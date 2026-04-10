@@ -74,8 +74,9 @@ export default function OrdersPage() {
       document.body.appendChild(link);
       link.click();
       link.remove();
-    } catch {
-      toast.error('Failed to download label');
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to download label';
+      toast.error(msg);
     }
   };
 
