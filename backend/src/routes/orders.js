@@ -121,6 +121,22 @@ router.put('/:id/cancel', authMiddleware, async (req, res) => {
   }
 });
 
+// Admin Download Delivery Label
+router.get('/:id/label', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).lean();
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=label-${order._id}.pdf`);
+
+    generateDeliveryLabel(order, res);
+  } catch (err) {
+    console.error('Label generation error:', err);
+    if (!res.headersSent) res.status(500).json({ message: 'Error generating label', error: err.message });
+  }
+});
+
 // GET /api/orders — admin: all orders
 router.get('/', async (req, res) => {
   try {
@@ -298,22 +314,6 @@ router.put('/:id/user-delete', authMiddleware, async (req, res) => {
     res.json({ message: 'Order removed from history' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Admin Download Delivery Label
-router.get('/:id/label', authMiddleware, async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id).lean();
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=label-${order._id}.pdf`);
-
-    generateDeliveryLabel(order, res);
-  } catch (err) {
-    console.error('Label generation error:', err);
-    if (!res.headersSent) res.status(500).json({ message: 'Error generating label', error: err.message });
   }
 });
 
