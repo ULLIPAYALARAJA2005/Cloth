@@ -7,9 +7,18 @@ export const getImgUrl = (img) => {
   
   if (typeof url !== 'string') return 'https://via.placeholder.com/400';
 
-  // If it's a relative path (local /uploads fallback OR new /api/images/... path), prefix with backend URL
-  if (url.startsWith('/uploads') || url.startsWith('/api/images')) {
-    return `${BASE_URL}${url}`;
+  // If it's already an absolute URL, return as is
+  if (url.startsWith('http') || url.startsWith('data:')) {
+    return url;
+  }
+
+  // Ensure relative URLs are prefixed with BASE_URL
+  // We handle both /uploads and uploads (with or without leading slash)
+  // And same for api/images
+  const relativePath = url.startsWith('/') ? url : `/${url}`;
+  
+  if (relativePath.startsWith('/uploads') || relativePath.startsWith('/api/images')) {
+    return `${BASE_URL}${relativePath}`;
   }
   
   return url;
