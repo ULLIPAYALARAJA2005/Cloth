@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiEye, FiCheck, FiX, FiTruck, FiPackage, FiShoppingBag, FiTrash, FiArrowLeft, FiDownload } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../lib/api';
+import { getImgUrl } from '../utils/image';
 
 const STATUS_ICONS = {
   pending: '🕒', confirmed: '✅', shipped: '🚚', delivered: '📦', rejected: '❌', cancelled: '🚫'
@@ -187,7 +188,7 @@ export default function OrdersPage() {
               {selected.paymentProof && (
                 <div className="p-4 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-xl">
                   <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Payment Proof</h3>
-                  <a href={selected.paymentProof} target="_blank" rel="noreferrer" className="block w-full text-center p-3 border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500/10 text-primary-600 dark:text-primary-400 text-xs font-bold transition-colors">
+                  <a href={getImgUrl(selected.paymentProof)} target="_blank" rel="noreferrer" className="block w-full text-center p-3 border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500/10 text-primary-600 dark:text-primary-400 text-xs font-bold transition-colors">
                     <FiEye className="inline mr-2" /> View Full Screenshot
                   </a>
                 </div>
@@ -206,7 +207,7 @@ export default function OrdersPage() {
                 <div className="space-y-4">
                   {selected.items?.map((item, i) => (
                     <div key={i} className="flex gap-3 text-sm">
-                      <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded-lg border border-gray-100 dark:border-dark-border" />
+                      <img src={getImgUrl(item.image)} alt={item.name} className="w-12 h-12 object-cover rounded-lg border border-gray-100 dark:border-dark-border" />
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-gray-900 dark:text-white truncate">{item.name}</p>
                         <p className="text-[10px] text-gray-500 mt-0.5">Sz: {item.size} | Clr: {item.color}</p>
