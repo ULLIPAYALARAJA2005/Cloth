@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiTrash2, FiMinus, FiPlus, FiArrowRight } from 'react-icons/fi';
+import { FaStar } from 'react-icons/fa';
 import useCartStore from '../store/cartStore';
 import { getImgUrl } from '../utils/image';
 
@@ -36,7 +37,20 @@ export default function CartPage() {
                 className="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1 truncate">{item.name}</h3>
-                <p className="text-sm text-gray-500 mb-2">Size: {item.size} | Color: {item.color}</p>
+                <p className="text-xs text-gray-500 mb-2">Size: {item.size} | Color: {item.color}</p>
+                
+                {item.reviews > 0 ? (
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="flex items-center gap-0.5 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded font-black">
+                      {(item.rating || 0).toFixed(1)} <FaStar className="w-2.5 h-2.5 fill-current" />
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-medium">({item.reviews} reviews)</span>
+                  </div>
+                ) : (
+                  <div className="text-[10px] font-medium text-gray-400 mb-2">
+                    No ratings yet
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-bold text-primary-600 dark:text-primary-400">₹{item.price.toLocaleString()}</p>
                   {item.mrp > item.price && (

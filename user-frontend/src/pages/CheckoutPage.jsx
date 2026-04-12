@@ -167,6 +167,20 @@ export default function CheckoutPage() {
                     <div>
                       <h4 className="font-bold text-gray-900 dark:text-white line-clamp-1 text-sm">{item.name}</h4>
                       <p className="text-[10px] text-gray-500">Color: {item.color} | Size: {item.size}</p>
+                      
+                      {item.reviews > 0 ? (
+                        <div className="flex items-center gap-1.5 my-1">
+                          <span className="flex items-center gap-0.5 text-[8px] bg-green-500 text-white px-1 py-0.5 rounded font-black">
+                            {(item.rating || 0).toFixed(1)} <FaStar className="w-2.5 h-2.5 fill-current" />
+                          </span>
+                          <span className="text-[8px] text-gray-400 font-medium">({item.reviews})</span>
+                        </div>
+                      ) : (
+                        <div className="text-[8px] font-medium text-gray-400 my-1">
+                          No ratings
+                        </div>
+                      )}
+                      
                       <div className="flex items-center gap-2 mt-1">
                         <span className="font-bold text-gray-900 dark:text-white">₹{itemPrice.toLocaleString()}</span>
                         {discount > 0 && <span className="text-[10px] line-through text-gray-400">₹{mrp.toLocaleString()}</span>}
