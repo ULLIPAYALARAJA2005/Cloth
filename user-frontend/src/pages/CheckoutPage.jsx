@@ -6,11 +6,12 @@ import toast from 'react-hot-toast';
 import api from '../lib/api';
 import useCartStore from '../store/cartStore';
 import useAuthStore from '../store/authStore';
+import { getImgUrl } from '../utils/image';
 
 export default function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { items: cartItems, clearCart } = useCartStore();
+  const { items: cartItems, clearCart, updateQuantity } = useCartStore();
   const { user } = useAuthStore();
 
   const isBuyNow = location.state?.type === 'single';
