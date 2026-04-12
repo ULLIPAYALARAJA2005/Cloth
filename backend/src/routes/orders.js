@@ -52,19 +52,28 @@ router.post('/', authMiddleware, upload.single('paymentProof'), async (req, res)
       statusHistory: [{ status: 'pending', timestamp: new Date().toISOString() }],
     });
 
-    // Update inventory
-    for (const item of parsedItems) {
-      if (!item.productId) continue;
-      const p = await Product.findById(item.productId);
-      if (p && p.hasSizes === false) {
-        await Product.findByIdAndUpdate(item.productId, {
-          $inc: { quantity: -item.quantity }
-        });
-      } else if (p) {
-        await Product.findByIdAndUpdate(item.productId, {
-          $inc: { [`sizes.$[el].qty`]: -item.quantity }
-        }, { arrayFilters: [{ 'el.size': item.size }] });
+    // Optimized Bulk Inventory Update
+    const bulkOps = parsedItems.map(item => {
+      if (!item.productId) return null;
+      if (item.size && item.size !== 'No Size') {
+        return {
+          updateOne: {
+            filter: { _id: item.productId, 'sizes.size': item.size },
+            update: { $inc: { 'sizes.$.qty': -item.quantity } }
+          }
+        };
+      } else {
+        return {
+          updateOne: {
+            filter: { _id: item.productId },
+            update: { $inc: { quantity: -item.quantity } }
+          }
+        };
       }
+    }).filter(Boolean);
+
+    if (bulkOps.length > 0) {
+      await Product.bulkWrite(bulkOps);
     }
 
     if (couponCode) {
