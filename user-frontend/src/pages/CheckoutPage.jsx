@@ -145,220 +145,189 @@ export default function CheckoutPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 animate-fade-in">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Checkout</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-6">
-          {/* Payment Instructions */}
-          <div className="card p-6 border-2 border-primary-200 dark:border-primary-500/30">
-            <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-4">💳 Payment Instructions</h2>
-            <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl p-4 mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Send payment via UPI to:</p>
-              <div className="flex items-center justify-between">
-                <p className="text-2xl font-extrabold text-primary-700 dark:text-primary-300 tracking-wider">{upiNumber}</p>
-                <button type="button" onClick={copyUPI}
-                  className="flex items-center gap-1 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 transition-colors bg-white dark:bg-dark-card px-3 py-1.5 rounded-lg border border-primary-200 dark:border-dark-border">
-                  {copied ? <FiCheck className="w-4 h-4" /> : <FiCopy className="w-4 h-4" />}
-                  {copied ? 'Copied' : 'Copy'}
-                </button>
-              </div>
-              <p className="text-sm font-semibold text-primary-700 dark:text-primary-300 mt-2">Amount: ₹{total.toLocaleString()}</p>
-            </div>
-            <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
-              ⚠️ After payment, fill the details below and upload the screenshot.
-            </p>
-          </div>
-
-          {/* Transaction Details */}
-          <div className="card p-6 space-y-4">
-            <h2 className="font-bold text-lg text-gray-900 dark:text-white">Transaction Details</h2>
-            <input className="input-field" placeholder="Transaction ID / UTR Number *" value={form.transactionId}
-              onChange={e => setForm(f => ({ ...f, transactionId: e.target.value }))} required />
-            <input className="input-field" placeholder="Transaction Phone Number *" type="tel" value={form.transactionPhone}
-              onChange={e => setForm(f => ({ ...f, transactionPhone: e.target.value }))} required />
-
-            {/* Payment Screenshot Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Screenshot *</label>
-              <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all ${
-                paymentFile ? 'border-green-400 bg-green-50 dark:bg-green-500/10' : 'border-gray-300 dark:border-dark-border hover:border-primary-400'
-              }`}>
-                <input type="file" accept="image/*" className="hidden" onChange={e => setPaymentFile(e.target.files[0])} />
-                {paymentFile ? (
-                  <div className="text-center">
-                    <FiCheck className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-green-700 dark:text-green-400">{paymentFile.name}</p>
+      <div className="space-y-8">
+        {/* 1. Order Summary (Now First) */}
+        <div className="card p-5 bg-gray-50/50 dark:bg-dark-card/50">
+          <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            📦 Order Summary {isBuyNow && <span className="text-xs font-normal text-primary-500 bg-primary-50 px-2 py-0.5 rounded border border-primary-200">Direct Buy</span>}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {checkoutItems.map((item, i) => {
+              const itemPrice = item.price;
+              const mrp = item.mrp || itemPrice;
+              const discount = (mrp > 0 && itemPrice < mrp) ? Math.round(((mrp - itemPrice) / mrp) * 100) : 0;
+              
+              return (
+                <div key={i} className="flex gap-4 p-3 border border-gray-100 dark:border-dark-border rounded-xl bg-white dark:bg-dark-bg/40">
+                  <div className="w-20 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-gray-50 dark:border-dark-border">
+                    <img src={getImgUrl(item.image)} alt={item.name} className="w-full h-full object-cover" />
                   </div>
-                ) : (
-                  <div className="text-center">
-                    <FiUpload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">Click to upload screenshot</p>
-                    <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
-                  </div>
-                )}
-              </label>
-            </div>
-          </div>
-
-          {/* Delivery Address */}
-          <div className="card p-6 space-y-4">
-            <h2 className="font-bold text-lg text-gray-900 dark:text-white">Delivery Address</h2>
-            
-            {userAddresses.length > 0 && (
-              <div className="space-y-2 mb-4">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Select Saved Address</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {userAddresses.map(addr => (
-                    <button key={addr.id} type="button" onClick={() => selectAddress(addr)}
-                      className="text-left p-3 rounded-xl border border-gray-200 dark:border-dark-border hover:border-primary-400 transition-all bg-gray-50/50 dark:bg-dark-bg/50">
-                      <p className="text-xs font-bold text-gray-900 dark:text-white mb-0.5">{addr.label}</p>
-                      <p className="text-[10px] text-gray-500 line-clamp-1">{addr.street}</p>
-                      <p className="text-[9px] text-primary-600 font-bold mt-1">{addr.mobile1}{addr.mobile2 ? ' / ' + addr.mobile2 : ''}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <div className="grid grid-cols-2 gap-3">
-              <input className="input-field" placeholder="Mobile 1 (Delivery) *" type="tel" value={form.mobile1}
-                onChange={e => setForm(f => ({ ...f, mobile1: e.target.value }))} required />
-              <input className="input-field" placeholder="Mobile 2 (Optional)" type="tel" value={form.mobile2}
-                onChange={e => setForm(f => ({ ...f, mobile2: e.target.value }))} />
-            </div>
-
-            <textarea className="input-field resize-none" rows={2} placeholder="Street Address *" value={form.address}
-              onChange={e => setForm(f => ({ ...f, address: e.target.value }))} required />
-            <div className="grid grid-cols-3 gap-3">
-              <input className="input-field" placeholder="City *" value={form.city}
-                onChange={e => setForm(f => ({ ...f, city: e.target.value }))} required />
-              <input className="input-field" placeholder="State *" value={form.state}
-                onChange={e => setForm(f => ({ ...f, state: e.target.value }))} required />
-              <input className="input-field" placeholder="Pincode *" value={form.pincode}
-                onChange={e => setForm(f => ({ ...f, pincode: e.target.value }))} required />
-            </div>
-          </div>
-
-          <button type="submit" disabled={placing}
-            className="btn-primary w-full justify-center py-4 text-base">
-            {placing ? (
-              <span className="flex items-center gap-2">
-                <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Placing Order…
-              </span>
-            ) : 'Place Order'}
-          </button>
-        </form>
-
-        {/* Right Panel */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Coupon */}
-          <div className="card p-5">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Have a coupon?</h3>
-            <div className="flex gap-2">
-              <input className="input-field text-sm" placeholder="Enter coupon code" value={couponCode}
-                onChange={e => setCouponCode(e.target.value.toUpperCase())} />
-              <button type="button" onClick={validateCoupon} disabled={validatingCoupon}
-                className="btn-outline text-sm py-2 px-4 whitespace-nowrap">
-                {validatingCoupon ? '...' : 'Apply'}
-              </button>
-            </div>
-            {couponMsg && (
-              <p className={`text-xs mt-2 font-medium ${discount > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                {couponMsg}
-              </p>
-            )}
-          </div>
-
-          {/* Summary */}
-          <div className="card p-5">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Order Summary {isBuyNow && <span className="text-xs font-normal text-primary-500 bg-primary-50 px-2 py-0.5 rounded ml-2 border border-primary-200">Direct Buy</span>}</h3>
-            <div className="space-y-4 mb-6">
-              {checkoutItems.map((item, i) => {
-                const itemPrice = item.price;
-                const mrp = item.mrp || itemPrice;
-                const discount = (mrp > 0 && itemPrice < mrp) ? Math.round(((mrp - itemPrice) / mrp) * 100) : 0;
-                
-                return (
-                  <div key={i} className="flex gap-4 p-4 border border-gray-100 dark:border-dark-border rounded-xl bg-gray-50/30 dark:bg-dark-bg/50 hover:shadow-md transition-all">
-                    {/* Image */}
-                    <div className="w-24 h-32 flex-shrink-0 bg-white dark:bg-dark-card rounded-lg overflow-hidden border border-gray-100 dark:border-dark-border">
-                      <img src={item.image || 'https://via.placeholder.com/150'} alt={item.name} className="w-full h-full object-cover" />
-                    </div>
-                    
-                    {/* Details */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h4 className="font-bold text-gray-900 dark:text-white line-clamp-2 text-sm leading-snug mb-1">{item.name}</h4>
-                        <p className="text-xs text-gray-500 mb-1.5">Color: <span className="font-semibold text-gray-700 dark:text-gray-300">{item.color}</span> | Size: <span className="font-semibold text-gray-700 dark:text-gray-300">{item.size}</span></p>
-                        
-                        {item.reviews > 0 ? (
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <span className="flex items-center gap-0.5 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded font-black">
-                              {(item.rating || 0).toFixed(1)} <FaStar className="w-2.5 h-2.5 fill-current" />
-                            </span>
-                            <span className="text-[10px] text-gray-400 font-medium">({item.reviews} reviews)</span>
-                          </div>
-                        ) : (
-                          <div className="text-[10px] font-medium text-gray-400 mb-2">
-                            No ratings yet
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-gray-900 dark:text-white text-lg tracking-tight">₹{itemPrice.toLocaleString()}</span>
-                          {discount > 0 && (
-                            <>
-                              <span className="text-xs text-gray-400 line-through">₹{mrp.toLocaleString()}</span>
-                              <span className="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-1.5 py-0.5 rounded tracking-tighter">{discount}% OFF</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-dark-border">
-                        <div className="flex items-center border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card rounded-lg overflow-hidden shadow-sm">
-                          <button type="button" onClick={() => handleQuantityChange(i, item.quantity - 1)}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-dark-border text-gray-600 dark:text-gray-300 transition-colors">
-                            <FiMinus className="w-3 h-3" />
-                          </button>
-                          <span className="w-8 text-center text-xs font-bold text-gray-900 dark:text-white">{item.quantity}</span>
-                          <button type="button" onClick={() => handleQuantityChange(i, item.quantity + 1)}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-dark-border text-gray-600 dark:text-gray-300 transition-colors">
-                            <FiPlus className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <div className="text-right">
-                          <span className="block text-[10px] text-gray-500">Delivery by</span>
-                          <span className="text-xs text-gray-900 dark:text-white font-bold">{deliveryString}</span>
-                        </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                      <h4 className="font-bold text-gray-900 dark:text-white line-clamp-1 text-sm">{item.name}</h4>
+                      <p className="text-[10px] text-gray-500">Color: {item.color} | Size: {item.size}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="font-bold text-gray-900 dark:text-white">₹{itemPrice.toLocaleString()}</span>
+                        {discount > 0 && <span className="text-[10px] line-through text-gray-400">₹{mrp.toLocaleString()}</span>}
                       </div>
                     </div>
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="font-bold text-primary-600">Qty: {item.quantity}</span>
+                      <span className="text-gray-400">Delivery by {deliveryString}</span>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-            <div className="border-t border-gray-100 dark:border-dark-border pt-3 space-y-2">
-              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                <span>Subtotal</span><span>₹{subtotal.toLocaleString()}</span>
-              </div>
-              {discount > 0 && (
-                <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
-                  <span>Coupon Discount</span><span>-₹{discount.toLocaleString()}</span>
                 </div>
-              )}
-              <div className="flex justify-between font-bold text-gray-900 dark:text-white text-base pt-2 border-t border-gray-100 dark:border-dark-border">
-                <span>Total to Pay</span><span>₹{total.toLocaleString()}</span>
-              </div>
-            </div>
+              );
+            })}
           </div>
-
-          {/* Confirmation message */}
-          <div className="p-4 bg-amber-50 dark:bg-amber-500/10 rounded-xl text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
-            ⏳ <strong>Waiting for admin confirmation.</strong> Your order will be confirmed after we verify your payment. Delivery within 7 days of confirmation.
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-gray-100 dark:border-dark-border pt-4">
+            <div className="flex justify-between sm:block">
+              <span className="text-xs text-gray-500 block">Subtotal</span>
+              <span className="font-bold text-gray-900 dark:text-white">₹{subtotal.toLocaleString()}</span>
+            </div>
+            {discount > 0 && (
+              <div className="flex justify-between sm:block text-green-600">
+                <span className="text-xs block">Coupon Applied</span>
+                <span className="font-bold">-₹{discount.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between sm:block sm:text-right">
+              <span className="text-xs text-gray-500 block">Total to Pay</span>
+              <span className="text-xl font-black text-primary-600 dark:text-primary-400">₹{total.toLocaleString()}</span>
+            </div>
           </div>
         </div>
+
+        {/* 2. Coupon Option (Now Second) */}
+        <div className="card p-5 border-2 border-dashed border-primary-200 dark:border-primary-500/20">
+          <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            🎟️ Have a coupon code?
+          </h3>
+          <div className="flex gap-2">
+            <input className="input-field text-sm" placeholder="Enter code (e.g. WELCOME10)" value={couponCode}
+              onChange={e => setCouponCode(e.target.value.toUpperCase())} />
+            <button type="button" onClick={validateCoupon} disabled={validatingCoupon}
+              className="btn-primary py-2 px-6 whitespace-nowrap">
+              {validatingCoupon ? '...' : 'Apply Coupon'}
+            </button>
+          </div>
+          {couponMsg && (
+            <p className={`text-xs mt-2 font-bold ${discount > 0 ? 'text-green-600' : 'text-red-500'}`}>
+              {couponMsg}
+            </p>
+          )}
+        </div>
+
+        {/* 3. The Form (Address, Payment, etc.) */}
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            {/* Payment Instructions */}
+            <div className="card p-6 border border-amber-100 dark:border-amber-500/20 bg-amber-50/30 dark:bg-amber-500/5">
+              <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-4">💳 Step 1: Payment</h2>
+              <div className="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm mb-4 border border-primary-100 dark:border-dark-border">
+                <p className="text-xs text-gray-500 mb-1">Send ₹{total.toLocaleString()} via UPI to:</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-2xl font-black text-primary-600 tracking-wider font-mono">{upiNumber}</p>
+                  <button type="button" onClick={copyUPI}
+                    className="flex items-center gap-1 text-xs font-bold text-primary-600 bg-primary-50 dark:bg-primary-500/10 px-3 py-2 rounded-lg border border-primary-200 dark:border-primary-500/30">
+                    {copied ? <FiCheck className="w-3 h-3" /> : <FiCopy className="w-3 h-3" />}
+                    {copied ? 'Copied' : 'Copy UPI'}
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                ⚠️ Take a screenshot after payment to upload below.
+              </p>
+            </div>
+
+            {/* Transaction Identity */}
+            <div className="card p-6 space-y-4">
+              <h2 className="font-bold text-lg text-gray-900 dark:text-white">Step 2: Payment Details</h2>
+              <input className="input-field" placeholder="Enter Transaction ID / UTR Number *" value={form.transactionId}
+                onChange={e => setForm(f => ({ ...f, transactionId: e.target.value }))} required />
+              <input className="input-field" placeholder="Your Payment Mobile Number *" type="tel" value={form.transactionPhone}
+                onChange={e => setForm(f => ({ ...f, transactionPhone: e.target.value }))} required />
+              
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-tighter mb-2">Upload Screenshot *</label>
+                <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 cursor-pointer transition-all ${
+                  paymentFile ? 'border-green-400 bg-green-50 dark:bg-green-500/10' : 'border-gray-200 dark:border-dark-border hover:border-primary-400'
+                }`}>
+                  <input type="file" accept="image/*" className="hidden" onChange={e => setPaymentFile(e.target.files[0])} />
+                  {paymentFile ? (
+                    <div className="text-center">
+                      <FiCheck className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                      <p className="text-sm font-bold text-green-700 dark:text-green-400 line-clamp-1">{paymentFile.name}</p>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <FiUpload className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                      <p className="text-sm font-bold text-gray-500">Attach Screenshot</p>
+                    </div>
+                  )}
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Delivery Address */}
+            <div className="card p-6 space-y-4 h-full">
+              <h2 className="font-bold text-lg text-gray-900 dark:text-white">Step 3: Delivery Address</h2>
+              
+              {userAddresses.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Use Saved Address</p>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {userAddresses.map(addr => (
+                      <button key={addr.id} type="button" onClick={() => selectAddress(addr)}
+                        className="flex-shrink-0 text-left p-3 rounded-xl border border-gray-200 dark:border-dark-border hover:border-primary-400 bg-white dark:bg-dark-card min-w-[160px]">
+                        <p className="text-[10px] font-black text-gray-900 dark:text-white truncate">{addr.label}</p>
+                        <p className="text-[9px] text-gray-500 mt-0.5 truncate">{addr.street}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-2 gap-3">
+                <input className="input-field" placeholder="Primary Mobile *" type="tel" value={form.mobile1}
+                  onChange={e => setForm(f => ({ ...f, mobile1: e.target.value }))} required />
+                <input className="input-field" placeholder="Secondary Mobile" type="tel" value={form.mobile2}
+                  onChange={e => setForm(f => ({ ...f, mobile2: e.target.value }))} />
+              </div>
+
+              <textarea className="input-field resize-none" rows={3} placeholder="Full Delivery Address *" value={form.address}
+                onChange={e => setForm(f => ({ ...f, address: e.target.value }))} required />
+              <div className="grid grid-cols-2 gap-3">
+                <input className="input-field" placeholder="City *" value={form.city}
+                  onChange={e => setForm(f => ({ ...f, city: e.target.value }))} required />
+                <input className="input-field" placeholder="State *" value={form.state}
+                  onChange={e => setForm(f => ({ ...f, state: e.target.value }))} required />
+              </div>
+              <input className="input-field" placeholder="Pincode *" value={form.pincode}
+                onChange={e => setForm(f => ({ ...f, pincode: e.target.value }))} required />
+
+              <div className="pt-4 mt-auto">
+                <button type="submit" disabled={placing}
+                  className="btn-primary w-full justify-center py-4 text-lg font-black shadow-xl shadow-primary-500/20">
+                  {placing ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Placing Order…
+                    </span>
+                  ) : `Confirm & Place Order`}
+                </button>
+                <p className="text-center text-[10px] text-gray-400 mt-4 px-4 font-medium italic">
+                  ⏳ <strong>Note:</strong> Delivery within 7 days after payment verification.
+                </p>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   );
